@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dedemoğlu Akıllı Sınıf</title>
+
+<style>
+body { margin:0; font-family: Arial; background:#e5ddd5; }
+#chat { height:100vh; display:flex; flex-direction:column; }
+.header { background:#075e54; color:white; padding:15px; text-align:center; font-weight:bold; }
+.box { flex:1; padding:10px; overflow-y:auto; display:flex; flex-direction:column; }
+.msg { padding:10px; margin:5px 0; border-radius:10px; max-width:80%; }
+.bot { background:white; align-self:flex-start; }
+.user { background:#dcf8c6; align-self:flex-end; }
+.footer { display:flex; padding:10px; background:#f0f0f0; }
+input { flex:1; padding:10px; border-radius:20px; border:none; outline:none; }
+button { margin-left:10px; border:none; background:#075e54; color:white; padding:10px 15px; border-radius:50%; cursor:pointer; }
+</style>
+</head>
+
+<body>
+
+<div id="chat">
+    <div class="header">👨‍🏫 Erkan Dedemoğlu Akıllı Sınıf</div>
+
+    <div class="box" id="box">
+        <div class="msg bot">Selam evladım, sorunu bekliyorum.</div>
+    </div>
+
+    <div class="footer">
+        <input id="input" placeholder="Sorunu yaz evladım" onkeydown="if(event.key==='Enter') ask()">
+        <button onclick="ask()">➤</button>
+    </div>
+</div>
+
+<script>
+async function ask() {
+    const input = document.getElementById("input");
+    const text = input.value.trim();
+    if (!text) return;
+
+    add(text, "user");
+    input.value = "";
+
+    const bot = add("Düşünüyorum evladım...", "bot");
+
+    try{
+        const res = await fetch("/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: text })
+        });
+
+        const data = await res.json();
+        bot.innerText = data.answer;
+    }catch(e){
+        bot.innerText = "Bağlantı hatası evladım.";
+    }
+}
+
+function add(text, type) {
+    const box = document.getElementById("box");
+    const div = document.createElement("div");
+    div.className = "msg " + type;
+    div.innerText = text;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+    return div;
+}
+</script>
+
+</body>
+</html>
